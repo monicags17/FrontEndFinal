@@ -69,14 +69,15 @@
       "email": "monicags1707@gmail.com",
       "password": "12345678",
       "role": "user",
-      "status": "blocked"
+      "status": "active"
     },
     {
       "id": "2b16",
       "name": "ryan ajah",
       "email": "ryan@bampuks",
       "password": "12345678",
-      "role": "user"
+      "role": "user",
+      "status": "blocked"
     }
   ]
 }

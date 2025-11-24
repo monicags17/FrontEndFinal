@@ -15,6 +15,7 @@ const Login = () => {
         email: "",
         password: ""
     });
+    const [blockedError, setBlockedError] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -32,7 +33,14 @@ const Login = () => {
 
             // Check if user is blocked
             if (user.status === "blocked") {
-                toast.error("Your account has been blocked. Please contact the administrator.");
+                toast.error("Account Blocked", {
+                    description: "Your account has been blocked. Please contact the administrator.",
+                    action: {
+                        label: "Contact Admin",
+                        onClick: () => navigate("/contact"),
+                    },
+                });
+                setBlockedError(true);
                 setIsLoading(false);
                 return;
             }
@@ -126,6 +134,14 @@ const Login = () => {
                                 {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
                             </Button>
                         </form>
+                        {blockedError && (
+                            <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive flex items-center justify-between">
+                                <span>Your account is blocked.</span>
+                                <Link to="/contact" className="font-bold hover:underline">
+                                    Contact Admin
+                                </Link>
+                            </div>
+                        )}
                     </CardContent>
                     <CardFooter className="flex justify-center border-t border-white/10 pt-6">
                         <p className="text-sm text-muted-foreground">
