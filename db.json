@@ -1,0 +1,82 @@
+{
+  "items": [
+    {
+      "id": "3",
+      "title": "AirPods Pro Case",
+      "description": "Found a white AirPods Pro case on the bench near the sports hall.",
+      "category": "found",
+      "location": "Sports Hall",
+      "date": "2024-03-14",
+      "imageUrl": "https://images.unsplash.com/photo-1588423771073-b8903fbb85b5?w=400",
+      "contactName": "David Wilson",
+      "contactEmail": "david.w@student.unklab.ac.id",
+      "contactPhone": "081234567892",
+      "status": "active"
+    },
+    {
+      "id": "4",
+      "title": "Blue Hydro Flask",
+      "description": "Lost a 32oz Blue Hydro Flask with several travel stickers. Left it in GK1 204.",
+      "category": "lost",
+      "location": "GK1 Room 204",
+      "date": "2024-03-15",
+      "imageUrl": "https://images.unsplash.com/photo-1602143407151-0111419516eb?w=400",
+      "contactName": "Emily Brown",
+      "contactEmail": "emily.b@student.unklab.ac.id",
+      "contactPhone": "081234567893",
+      "status": "active"
+    },
+    {
+      "id": "5",
+      "title": "Car Keys (Toyota)",
+      "description": "Found a set of Toyota car keys with a red keychain.",
+      "category": "found",
+      "location": "Parking Lot A",
+      "date": "2024-03-16",
+      "imageUrl": "https://images.unsplash.com/photo-1627454819213-177c7dfea537?w=400",
+      "contactName": "Security Post",
+      "contactEmail": "security@unklab.ac.id",
+      "contactPhone": "081234567894",
+      "status": "active"
+    },
+    {
+      "id": "6",
+      "title": "Calculus Textbook",
+      "description": "Lost my Calculus 1 textbook. It has my name written on the first page.",
+      "category": "lost",
+      "location": "Gazebo near GK2",
+      "date": "2024-03-17",
+      "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400",
+      "contactName": "James Lee",
+      "contactEmail": "james.l@student.unklab.ac.id",
+      "contactPhone": "081234567895",
+      "status": "active"
+    }
+  ],
+  "contacts": [],
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@unklab.ac.id",
+      "password": "admin123",
+      "name": "Admin System",
+      "role": "admin",
+      "status": "active"
+    },
+    {
+      "id": "4d26",
+      "name": "Monica Sumual",
+      "email": "monicags1707@gmail.com",
+      "password": "12345678",
+      "role": "user",
+      "status": "blocked"
+    },
+    {
+      "id": "2b16",
+      "name": "ryan ajah",
+      "email": "ryan@bampuks",
+      "password": "12345678",
+      "role": "user"
+    }
+  ]
+}
