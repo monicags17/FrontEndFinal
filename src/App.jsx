@@ -31,11 +31,7 @@ const App = () => (
                             <LostAndFound />
                         </ProtectedRoute>
                     } />
-                    <Route path="/contact" element={
-                        <ProtectedRoute>
-                            <Contact />
-                        </ProtectedRoute>
-                    } />
+                    <Route path="/contact" element={<Contact />} />
                     <Route path="/admin" element={
                         <AdminRoute>
                             <Admin />
