@@ -129,5 +129,17 @@
       "createdAt": "2025-11-25T09:56:17.611Z"
     }
   ],
-  "claims": []
+  "claims": [
+    {
+      "id": "674074aa-6a49-4efb-bbd7-dc557eaa2a6c",
+      "message": "sudah dapat",
+      "claimerName": "Monica Sumual",
+      "claimerEmail": "monicags1707@gmail.com",
+      "claimerPhone": "085211043464",
+      "itemId": "3",
+      "itemTitle": "AirPods Pro Case",
+      "timestamp": "2025-11-25T13:52:20.233Z",
+      "status": "pending"
+    }
+  ]
 }
