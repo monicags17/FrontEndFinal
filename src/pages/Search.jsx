@@ -16,7 +16,10 @@ const Search = () => {
     queryFn: itemsAPI.getAll
   });
   const filteredItems = items.filter((item) => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.description.toLowerCase().includes(searchQuery.toLowerCase()) || item.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const title = item.title || "";
+    const description = item.description || "";
+    const location = item.location || "";
+    const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) || description.toLowerCase().includes(searchQuery.toLowerCase()) || location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTab = activeTab === "all" || item.category === activeTab;
     return matchesSearch && matchesTab;
   });
