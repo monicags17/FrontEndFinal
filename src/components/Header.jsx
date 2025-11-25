@@ -23,6 +23,7 @@ const Header = () => {
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userName");
         localStorage.removeItem("userRole");
+        localStorage.removeItem("user"); // Remove user object
         setIsAuthenticated(false);
         setUserRole("");
         toast.success("Logged out successfully");
@@ -78,6 +79,12 @@ const Header = () => {
                                         Admin
                                     </Link>
                                 )}
+                                <Link
+                                    to="/profile"
+                                    className="text-sm font-medium text-gray-500 hover:text-gray-900 px-3"
+                                >
+                                    <User className="h-4 w-4" />
+                                </Link>
                                 <Button
                                     variant="ghost"
                                     size="sm"

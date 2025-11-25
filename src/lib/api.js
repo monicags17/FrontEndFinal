@@ -149,4 +149,219 @@ export const usersAPI = {
         });
         if (!response.ok) throw new Error('Failed to delete user');
     },
+
+    // Profile management
+    getProfile: async (userId) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch profile');
+        return response.json();
+    },
+
+    updateProfile: async (userId, profileData) => {
+        // Check if email is being changed and if it's already used by another user
+        if (profileData.email) {
+            const emailCheckResponse = await fetch(`${API_BASE_URL}/users?email=${profileData.email}`);
+            if (!emailCheckResponse.ok) throw new Error('Failed to check email');
+            const existingUsers = await emailCheckResponse.json();
+
+            // Check if email is used by another user (not the current user)
+            const emailTaken = existingUsers.some(user => user.id !== userId);
+            if (emailTaken) {
+                throw new Error('Email is already in use by another account');
+            }
+        }
+
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profileData),
+        });
+        if (!response.ok) throw new Error('Failed to update profile');
+        return response.json();
+    },
+
+    changePassword: async (userId, currentPassword, newPassword) => {
+        // Fetch user to verify current password
+        const userResponse = await fetch(`${API_BASE_URL}/users/${userId}`);
+        if (!userResponse.ok) throw new Error('Failed to fetch user');
+        const user = await userResponse.json();
+
+        // Verify current password
+        if (user.password !== currentPassword) {
+            throw new Error('Current password is incorrect');
+        }
+
+        // Update password
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: newPassword }),
+        });
+        if (!response.ok) throw new Error('Failed to change password');
+        return response.json();
+    },
+};
+
+// Password Reset API
+export const passwordResetAPI = {
+    // Request password reset - generates token and saves to database
+    requestReset: async (email) => {
+        try {
+            // Check if user exists
+            const usersResponse = await fetch(`${API_BASE_URL}/users?email=${email}`);
+            if (!usersResponse.ok) throw new Error('Failed to check user');
+            const users = await usersResponse.json();
+
+            if (users.length === 0) {
+                // For security, return success even if email doesn't exist
+                return { success: true, message: 'If an account exists with this email, you will receive a reset link.' };
+            }
+
+            const user = users[0];
+
+            // Generate reset token
+            const token = crypto.randomUUID();
+            const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 minutes
+
+            // Create password reset record
+            const resetRecord = {
+                id: crypto.randomUUID(),
+                userId: user.id,
+                email: user.email,
+                token: token,
+                expiresAt: expiresAt,
+                used: false,
+                createdAt: new Date().toISOString(),
+            };
+
+            // Save to database
+            const response = await fetch(`${API_BASE_URL}/passwordResets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(resetRecord),
+            });
+
+            if (!response.ok) throw new Error('Failed to create reset token');
+
+            return {
+                success: true,
+                token: token,
+                userName: user.name,
+                email: user.email,
+                message: 'If an account exists with this email, you will receive a reset link.'
+            };
+        } catch (error) {
+            console.error('Password reset request error:', error);
+            throw error;
+        }
+    },
+
+    // Validate reset token
+    validateToken: async (token) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/passwordResets?token=${token}`);
+            if (!response.ok) throw new Error('Failed to validate token');
+
+            const resets = await response.json();
+
+            if (resets.length === 0) {
+                return { valid: false, message: 'Invalid reset token' };
+            }
+
+            const reset = resets[0];
+
+            // Check if already used
+            if (reset.used) {
+                return { valid: false, message: 'This reset link has already been used' };
+            }
+
+            // Check if expired
+            if (new Date(reset.expiresAt) < new Date()) {
+                return { valid: false, message: 'This reset link has expired' };
+            }
+
+            return { valid: true, reset: reset };
+        } catch (error) {
+            console.error('Token validation error:', error);
+            throw error;
+        }
+    },
+
+    // Reset password
+    resetPassword: async (token, newPassword) => {
+        try {
+            // Validate token first
+            const validation = await passwordResetAPI.validateToken(token);
+
+            if (!validation.valid) {
+                throw new Error(validation.message);
+            }
+
+            const reset = validation.reset;
+
+            // Update user password
+            const userResponse = await fetch(`${API_BASE_URL}/users/${reset.userId}`);
+            if (!userResponse.ok) throw new Error('Failed to fetch user');
+            const user = await userResponse.json();
+
+            const updatedUser = {
+                ...user,
+                password: newPassword, // In production, this should be hashed
+            };
+
+            const updateResponse = await fetch(`${API_BASE_URL}/users/${reset.userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedUser),
+            });
+
+            if (!updateResponse.ok) throw new Error('Failed to update password');
+
+            // Mark token as used
+            const updatedReset = {
+                ...reset,
+                used: true,
+                usedAt: new Date().toISOString(),
+            };
+
+            const markUsedResponse = await fetch(`${API_BASE_URL}/passwordResets/${reset.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedReset),
+            });
+
+            if (!markUsedResponse.ok) throw new Error('Failed to mark token as used');
+
+            return { success: true, message: 'Password reset successful' };
+        } catch (error) {
+            console.error('Password reset error:', error);
+            throw error;
+        }
+    },
+
+    // Cleanup expired tokens (optional, can be called periodically)
+    cleanupExpiredTokens: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/passwordResets`);
+            if (!response.ok) throw new Error('Failed to fetch reset tokens');
+
+            const resets = await response.json();
+            const now = new Date();
+
+            // Delete expired tokens
+            const deletePromises = resets
+                .filter(reset => new Date(reset.expiresAt) < now)
+                .map(reset =>
+                    fetch(`${API_BASE_URL}/passwordResets/${reset.id}`, {
+                        method: 'DELETE',
+                    })
+                );
+
+            await Promise.all(deletePromises);
+            return { success: true, deleted: deletePromises.length };
+        } catch (error) {
+            console.error('Cleanup error:', error);
+            throw error;
+        }
+    },
 };
