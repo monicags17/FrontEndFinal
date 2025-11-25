@@ -82,3 +82,9 @@ The application uses `db.json` as a local database with the following collection
 ## License
 
 This project is for educational purposes at Universitas Klabat.
+
+## Group Member
+
+- Monica Giselle Sumual
+- Niha Hardiyanti
+- Chelsea Vristy Juliayarnes Rantung
