@@ -365,3 +365,33 @@ export const passwordResetAPI = {
         }
     },
 };
+
+// Claims API
+export const claimsAPI = {
+    create: async (claim) => {
+        const response = await fetch(`${API_BASE_URL}/claims`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ...claim,
+                id: crypto.randomUUID(),
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            }),
+        });
+        if (!response.ok) throw new Error('Failed to submit claim');
+        return response.json();
+    },
+
+    getByItemId: async (itemId) => {
+        const response = await fetch(`${API_BASE_URL}/claims?itemId=${itemId}`);
+        if (!response.ok) throw new Error('Failed to fetch claims');
+        return response.json();
+    },
+
+    getByUserId: async (userId) => {
+        const response = await fetch(`${API_BASE_URL}/claims?claimerId=${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch your claims');
+        return response.json();
+    }
+};

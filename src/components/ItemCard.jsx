@@ -54,12 +54,12 @@ const ItemCard = ({ item, onEdit, onDelete, showActions = false }) => {
                 <div className="flex items-center gap-4 text-xs text-gray-500 mt-3">
                     <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        <span className="line-clamp-1 max-w-[80px]">{item.location}</span>
+                        <span className="line-clamp-1 max-w-[80px]">{item.location || "N/A"}</span>
                     </div>
                     <div className="w-px h-3 bg-gray-200" />
                     <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        <span>{format(new Date(item.date), 'MMM dd')}</span>
+                        <span>{item.date ? format(new Date(item.date), 'MMM dd') : 'N/A'}</span>
                     </div>
                 </div>
             </div>

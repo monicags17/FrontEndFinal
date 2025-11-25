@@ -1,19 +1,37 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { itemsAPI } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { itemsAPI, claimsAPI } from "@/lib/api";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Calendar, User, Mail, Phone } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, User, Mail, Phone, Hand } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import ClaimItemDialog from "@/components/ClaimItemDialog";
 
 const ItemDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
+
+    const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 
     const { data: item, isLoading, isError } = useQuery({
         queryKey: ["item", id],
         queryFn: () => itemsAPI.getById(id),
+    });
+
+    const claimMutation = useMutation({
+        mutationFn: (claimData) => claimsAPI.create(claimData),
+        onSuccess: () => {
+            toast.success("Claim submitted successfully! The owner has been notified.");
+            setIsClaimDialogOpen(false);
+        },
+        onError: () => {
+            toast.error("Failed to submit claim. Please try again.");
+        }
     });
 
     if (isLoading) {
@@ -42,6 +60,8 @@ const ItemDetail = () => {
             </div>
         );
     }
+
+    const isOwner = currentUser && item.userId === currentUser.id;
 
     return (
         <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
@@ -150,15 +170,38 @@ const ItemDetail = () => {
                                 )}
                             </div>
 
-                            <Button
-                                className="w-full mt-6 bg-gradient-primary shadow-lg hover:shadow-xl transition-all duration-300"
-                                onClick={() => window.location.href = `mailto:${item.contactEmail}?subject=Regarding: ${item.title}&body=Hi ${item.contactName}, I saw your post about ${item.title} on Klabat Connect.`}
-                            >
-                                Contact Now
-                            </Button>
+                            <div className="flex flex-col gap-3 mt-6">
+                                <Button
+                                    className="w-full bg-gradient-primary shadow-lg hover:shadow-xl transition-all duration-300"
+                                    onClick={() => window.location.href = `mailto:${item.contactEmail}?subject=Regarding: ${item.title}&body=Hi ${item.contactName}, I saw your post about ${item.title} on Klabat Connect.`}
+                                >
+                                    <Mail className="mr-2 h-4 w-4" />
+                                    Contact via Email
+                                </Button>
+
+                                {!isOwner && (
+                                    <Button
+                                        variant="outline"
+                                        className="w-full border-primary/20 hover:bg-primary/5 text-primary"
+                                        onClick={() => setIsClaimDialogOpen(true)}
+                                    >
+                                        <Hand className="mr-2 h-4 w-4" />
+                                        Claim This Item
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <ClaimItemDialog
+                    open={isClaimDialogOpen}
+                    onOpenChange={setIsClaimDialogOpen}
+                    item={item}
+                    currentUser={currentUser}
+                    onSubmit={claimMutation.mutate}
+                    isLoading={claimMutation.isPending}
+                />
             </main>
             <Footer />
         </div>
