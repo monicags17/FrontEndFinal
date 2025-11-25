@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { User, Shield, Calendar } from "lucide-react";
@@ -37,10 +37,14 @@ const ProfileHeader = ({ user }) => {
             <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                     {/* Avatar */}
-                    <Avatar className={`h-24 w-24 bg-gradient-to-br ${getGradientColor(user.name)} text-white text-2xl font-bold`}>
-                        <AvatarFallback className="bg-transparent text-white">
-                            {getInitials(user.name)}
-                        </AvatarFallback>
+                    <Avatar className="h-24 w-24">
+                        {user.profilePicture ? (
+                            <AvatarImage src={user.profilePicture} alt={user.name} className="object-cover" />
+                        ) : (
+                            <AvatarFallback className={`bg-gradient-to-br ${getGradientColor(user.name)} text-white text-2xl font-bold`}>
+                                {getInitials(user.name)}
+                            </AvatarFallback>
+                        )}
                     </Avatar>
 
                     {/* User Info */}

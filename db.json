@@ -61,7 +61,8 @@
       "password": "admin123",
       "name": "Admin System",
       "role": "admin",
-      "status": "active"
+      "status": "active",
+      "profilePicture": ""
     },
     {
       "id": "4d26",
@@ -69,7 +70,8 @@
       "email": "monicags1707@gmail.com",
       "password": "12345678Mc",
       "role": "user",
-      "status": "active"
+      "status": "active",
+      "profilePicture": ""
     }
   ],
   "passwordResets": [

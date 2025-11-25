@@ -17,16 +17,16 @@ const LostAndFound = () => {
       toast.error("Failed to report item. Please try again.");
     }
   });
-  return <div className="min-h-screen flex flex-col"><Header /><main className="flex-1 py-8"><div className="container max-w-3xl"><div className="mb-8"><h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-              Report Lost or Found Item
-            </h1><p className="text-muted-foreground">
-              Help reunite items with their owners by reporting what you've lost or found
-            </p></div><Card><CardHeader><CardTitle>Item Details</CardTitle><CardDescription>
-                Please provide as much information as possible to help identify the item
-              </CardDescription></CardHeader><CardContent><ItemForm
-    onSubmit={createMutation.mutate}
-    isLoading={createMutation.isPending}
-  /></CardContent></Card></div></main><Footer /></div>;
+  return <div className="min-h-screen flex flex-col"><Header /><main className="flex-1 py-8 pt-24"><div className="container max-w-3xl"><div className="mb-8"><h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+    Report Lost or Found Item
+  </h1><p className="text-muted-foreground">
+      Help reunite items with their owners by reporting what you've lost or found
+    </p></div><Card><CardHeader><CardTitle>Item Details</CardTitle><CardDescription>
+      Please provide as much information as possible to help identify the item
+    </CardDescription></CardHeader><CardContent><ItemForm
+      onSubmit={createMutation.mutate}
+      isLoading={createMutation.isPending}
+    /></CardContent></Card></div></main><Footer /></div>;
 };
 var stdin_default = LostAndFound;
 export {
