@@ -7,11 +7,12 @@ import ProfileHeader from "@/components/ProfileHeader";
 import ProfileStats from "@/components/ProfileStats";
 import EditProfileForm from "@/components/EditProfileForm";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
+import MyItemsList from "@/components/MyItemsList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usersAPI, itemsAPI } from "@/lib/api";
 import { toast } from "sonner";
-import { User, Edit, Shield, Info } from "lucide-react";
+import { User, Edit, Shield, Info, Package } from "lucide-react";
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -125,18 +126,22 @@ const Profile = () => {
 
                     {/* Tabs */}
                     <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                        <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+                        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
                             <TabsTrigger value="overview" className="gap-2">
                                 <Info className="h-4 w-4" />
-                                Overview
+                                <span className="hidden sm:inline">Overview</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="my-items" className="gap-2">
+                                <Package className="h-4 w-4" />
+                                <span className="hidden sm:inline">My Items</span>
                             </TabsTrigger>
                             <TabsTrigger value="edit" className="gap-2">
                                 <Edit className="h-4 w-4" />
-                                Edit Profile
+                                <span className="hidden sm:inline">Edit Profile</span>
                             </TabsTrigger>
                             <TabsTrigger value="security" className="gap-2">
                                 <Shield className="h-4 w-4" />
-                                Security
+                                <span className="hidden sm:inline">Security</span>
                             </TabsTrigger>
                         </TabsList>
 
@@ -170,6 +175,15 @@ const Profile = () => {
                                     </div>
                                 </CardContent>
                             </Card>
+                        </TabsContent>
+
+                        {/* My Items Tab */}
+                        <TabsContent value="my-items" className="mt-6">
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold mb-2">My Reported Items</h2>
+                                <p className="text-muted-foreground">Manage items you have reported as lost or found.</p>
+                            </div>
+                            <MyItemsList items={items} userId={userId} userEmail={user.email} />
                         </TabsContent>
 
                         {/* Edit Profile Tab */}
