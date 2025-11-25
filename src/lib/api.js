@@ -149,6 +149,57 @@ export const usersAPI = {
         });
         if (!response.ok) throw new Error('Failed to delete user');
     },
+
+    // Profile management
+    getProfile: async (userId) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch profile');
+        return response.json();
+    },
+
+    updateProfile: async (userId, profileData) => {
+        // Check if email is being changed and if it's already used by another user
+        if (profileData.email) {
+            const emailCheckResponse = await fetch(`${API_BASE_URL}/users?email=${profileData.email}`);
+            if (!emailCheckResponse.ok) throw new Error('Failed to check email');
+            const existingUsers = await emailCheckResponse.json();
+
+            // Check if email is used by another user (not the current user)
+            const emailTaken = existingUsers.some(user => user.id !== userId);
+            if (emailTaken) {
+                throw new Error('Email is already in use by another account');
+            }
+        }
+
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profileData),
+        });
+        if (!response.ok) throw new Error('Failed to update profile');
+        return response.json();
+    },
+
+    changePassword: async (userId, currentPassword, newPassword) => {
+        // Fetch user to verify current password
+        const userResponse = await fetch(`${API_BASE_URL}/users/${userId}`);
+        if (!userResponse.ok) throw new Error('Failed to fetch user');
+        const user = await userResponse.json();
+
+        // Verify current password
+        if (user.password !== currentPassword) {
+            throw new Error('Current password is incorrect');
+        }
+
+        // Update password
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: newPassword }),
+        });
+        if (!response.ok) throw new Error('Failed to change password');
+        return response.json();
+    },
 };
 
 // Password Reset API
