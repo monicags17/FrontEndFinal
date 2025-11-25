@@ -70,14 +70,6 @@
       "password": "12345678",
       "role": "user",
       "status": "active"
-    },
-    {
-      "id": "2b16",
-      "name": "ryan ajah",
-      "email": "ryan@bampuks",
-      "password": "12345678",
-      "role": "user",
-      "status": "blocked"
     }
   ]
 }

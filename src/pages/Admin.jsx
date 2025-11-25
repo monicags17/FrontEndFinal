@@ -4,20 +4,29 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ItemCard from "@/components/ItemCard";
 import ItemForm from "@/components/ItemForm";
+import UserEditDialog from "@/components/UserEditDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { itemsAPI, contactsAPI, usersAPI } from "@/lib/api";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Trash2, Eye, Ban, CheckCircle } from "lucide-react";
+import { Trash2, Eye, Ban, CheckCircle, Edit, UserX } from "lucide-react";
 const Admin = () => {
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("items");
   const [editingItem, setEditingItem] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [deletingUser, setDeletingUser] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Get current logged in user
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const { data: items = [] } = useQuery({
     queryKey: ["items"],
     queryFn: itemsAPI.getAll
@@ -85,6 +94,48 @@ const Admin = () => {
       toast.error("Failed to update user status");
     }
   });
+
+  const updateUserMutation = useMutation({
+    mutationFn: ({ userId, userData }) => usersAPI.update(userId, userData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User updated successfully");
+      setIsUserDialogOpen(false);
+      setEditingUser(null);
+    },
+    onError: () => {
+      toast.error("Failed to update user");
+    }
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: usersAPI.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User deleted successfully");
+      setIsDeleteDialogOpen(false);
+      setDeletingUser(null);
+    },
+    onError: () => {
+      toast.error("Failed to delete user");
+    }
+  });
+
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setIsUserDialogOpen(true);
+  };
+
+  const handleDeleteUser = (user) => {
+    setDeletingUser(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteUser = () => {
+    if (deletingUser) {
+      deleteUserMutation.mutate(deletingUser.id);
+    }
+  };
   return <div className="min-h-screen flex flex-col"><Header /><main className="flex-1 py-8"><div className="container"><div className="mb-8"><h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
     Admin Dashboard
   </h1><p className="text-muted-foreground">
@@ -143,29 +194,51 @@ const Admin = () => {
                     </div>
                     <CardDescription>{user.email}</CardDescription>
                   </div>
-                  {user.role !== "admin" && (
-                    <div className="flex gap-2">
-                      {user.status === "active" ? (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => updateUserStatusMutation.mutate({ userId: user.id, status: "blocked" })}
-                        >
-                          <Ban className="h-4 w-4 mr-2" />
-                          Block User
-                        </Button>
-                      ) : (
+                  <div className="flex gap-2">
+                    {user.id !== currentUser.id ? (
+                      <>
                         <Button
                           variant="outline"
-                          size="sm"
-                          onClick={() => updateUserStatusMutation.mutate({ userId: user.id, status: "active" })}
+                          size="icon"
+                          onClick={() => handleEditUser(user)}
+                          title="Edit user"
                         >
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Unblock User
+                          <Edit className="h-4 w-4" />
                         </Button>
-                      )}
-                    </div>
-                  )}
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDeleteUser(user)}
+                          title="Delete user"
+                        >
+                          <UserX className="h-4 w-4" />
+                        </Button>
+                        {user.role !== "admin" && (
+                          user.status === "active" ? (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateUserStatusMutation.mutate({ userId: user.id, status: "blocked" })}
+                              title="Block user"
+                            >
+                              <Ban className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateUserStatusMutation.mutate({ userId: user.id, status: "active" })}
+                              title="Unblock user"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                          )
+                        )}
+                      </>
+                    ) : (
+                      <Badge variant="secondary">Current User</Badge>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
             </Card>
@@ -177,7 +250,41 @@ const Admin = () => {
           </div>
         )}
       </TabsContent>
-    </Tabs></div></main><Footer /></div>;
+    </Tabs>
+
+    {/* User Edit Dialog */}
+    {editingUser && (
+      <UserEditDialog
+        user={editingUser}
+        open={isUserDialogOpen}
+        onOpenChange={setIsUserDialogOpen}
+        onSubmit={(userData) => updateUserMutation.mutate({ userId: editingUser.id, userData })}
+        isLoading={updateUserMutation.isPending}
+      />
+    )}
+
+    {/* User Delete Confirmation Dialog */}
+    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete the user account for <strong>{deletingUser?.name}</strong> ({deletingUser?.email}).
+            This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmDeleteUser}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete User
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </div></main><Footer /></div>;
 };
 var stdin_default = Admin;
 export {
