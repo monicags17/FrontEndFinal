@@ -67,9 +67,21 @@
       "id": "4d26",
       "name": "Monica Sumual",
       "email": "monicags1707@gmail.com",
-      "password": "12345678",
+      "password": "12345678Mc",
       "role": "user",
       "status": "active"
+    }
+  ],
+  "passwordResets": [
+    {
+      "id": "71714be4-6c8b-4e4d-acb1-10907f399fe4",
+      "userId": "4d26",
+      "email": "monicags1707@gmail.com",
+      "token": "8097b7b2-053b-4a9d-939e-558fa8fb8b12",
+      "expiresAt": "2025-11-25T09:55:48.182Z",
+      "used": true,
+      "createdAt": "2025-11-25T09:25:48.183Z",
+      "usedAt": "2025-11-25T09:29:23.961Z"
     }
   ]
 }
